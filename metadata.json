@@ -1,0 +1,5 @@
+{
+  "name": "FreshFocus",
+  "description": "A smart expiry tracker to manage and monitor product expiry dates effectively, reducing waste and keeping your pantry fresh.",
+  "requestFramePermissions": ["camera"]
+}
