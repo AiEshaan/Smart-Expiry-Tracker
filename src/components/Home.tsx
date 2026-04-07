@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { AlarmClock, CheckCircle2, Trash2, ChevronRight, Droplet, Leaf, UtensilsCrossed, Fish, Cookie, Snowflake, Archive } from 'lucide-react';
+import { AlarmClock, CheckCircle2, Trash2, ChevronRight, Droplet, Leaf, UtensilsCrossed, Fish, Cookie, Snowflake, Archive, ScanBarcode } from 'lucide-react';
 import { Product, Category } from '../types';
 import { cn } from '../lib/utils';
 import { differenceInDays } from 'date-fns';
@@ -110,6 +110,12 @@ export default function Home({ products, onDelete }: HomeProps) {
               <div className="flex-grow">
                 <h3 className="text-lg font-bold text-on-surface">{product.name}</h3>
                 <p className="text-sm text-on-surface-variant font-medium">{product.category} • {product.quantity}</p>
+                {product.barcode && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <ScanBarcode className="w-3 h-3 text-on-surface-variant" />
+                    <span className="text-[10px] font-mono text-on-surface-variant">{product.barcode}</span>
+                  </div>
+                )}
                 <div className="mt-3 inline-flex items-center px-3 py-1 bg-tertiary-container text-on-tertiary-container text-[11px] font-bold rounded-full uppercase tracking-tighter">
                   {getDaysLeft(product.expiryDate)}
                 </div>

@@ -9,6 +9,7 @@ export interface Product {
   reminderDays: number;
   status: 'critical' | 'warning' | 'safe';
   imageUrl?: string;
+  barcode?: string;
 }
 
 export interface UserProfile {

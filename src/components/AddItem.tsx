@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Camera, Calendar, ChevronDown, Bell, BellRing, Package, Lightbulb, X, RefreshCw, Circle, AlertTriangle, AlertCircle, CheckCircle, Upload, Image as ImageIcon } from 'lucide-react';
+import { Camera, Calendar, ChevronDown, Bell, BellRing, Package, Lightbulb, X, RefreshCw, Circle, AlertTriangle, AlertCircle, CheckCircle, Upload, Image as ImageIcon, ScanBarcode, QrCode } from 'lucide-react';
 import { Product, Category } from '../types';
 import { formatISO } from 'date-fns';
 import { cn } from '../lib/utils';
+import { Html5Qrcode } from 'html5-qrcode';
 
 interface AddItemProps {
   onAdd: (product: Product) => void;
@@ -16,8 +17,10 @@ export default function AddItem({ onAdd }: AddItemProps) {
   const [reminderDays, setReminderDays] = useState(1);
   const [quantityAmount, setQuantityAmount] = useState('1');
   const [quantityUnit, setQuantityUnit] = useState('pieces');
+  const [barcode, setBarcode] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -25,14 +28,56 @@ export default function AddItem({ onAdd }: AddItemProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const qrScannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      if (qrScannerRef.current && qrScannerRef.current.isScanning) {
+        qrScannerRef.current.stop();
+      }
     };
   }, [stream]);
+
+  const startBarcodeScanner = async () => {
+    setIsBarcodeScannerOpen(true);
+    setCameraError(null);
+    
+    // Wait for the container to be in DOM
+    setTimeout(async () => {
+      try {
+        const scanner = new Html5Qrcode("barcode-scanner-container");
+        qrScannerRef.current = scanner;
+        
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 150 }
+          },
+          (decodedText) => {
+            setBarcode(decodedText);
+            stopBarcodeScanner();
+          },
+          () => {
+            // Error callback - ignore to keep scanning
+          }
+        );
+      } catch (err: any) {
+        console.error("Error starting barcode scanner:", err);
+        setCameraError("Could not start barcode scanner. Please check permissions.");
+      }
+    }, 100);
+  };
+
+  const stopBarcodeScanner = async () => {
+    if (qrScannerRef.current && qrScannerRef.current.isScanning) {
+      await qrScannerRef.current.stop();
+    }
+    setIsBarcodeScannerOpen(false);
+  };
 
   const handleFile = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -177,6 +222,7 @@ export default function AddItem({ onAdd }: AddItemProps) {
       reminderDays,
       status: getStatus(expiryDate),
       imageUrl: imagePreview || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=200&h=200',
+      barcode: barcode || undefined,
     };
 
     onAdd(newProduct);
@@ -189,6 +235,32 @@ export default function AddItem({ onAdd }: AddItemProps) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="max-w-2xl mx-auto"
     >
+      {/* Barcode Scanner Modal */}
+      {isBarcodeScannerOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-outline-variant/30 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <ScanBarcode className="text-primary w-6 h-6" />
+                <h3 className="text-xl font-bold">Scan Barcode</h3>
+              </div>
+              <button 
+                onClick={stopBarcodeScanner}
+                className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div id="barcode-scanner-container" className="w-full aspect-video rounded-xl overflow-hidden bg-black" />
+              <p className="mt-4 text-center text-sm text-on-surface-variant font-medium">
+                Position the barcode within the frame to scan automatically.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-4xl font-extrabold text-on-surface tracking-tight mb-2">Add New Item</h1>
         <p className="text-on-surface-variant text-sm font-medium">Keep your inventory fresh and reduce waste.</p>
@@ -333,6 +405,17 @@ export default function AddItem({ onAdd }: AddItemProps) {
                           </div>
                           <span className="text-xs font-bold text-on-surface">Upload</span>
                         </button>
+                        <div className="w-[1px] h-12 bg-outline-variant/30 self-center" />
+                        <button 
+                          type="button"
+                          onClick={startBarcodeScanner}
+                          className="flex flex-col items-center gap-2 group/btn"
+                        >
+                          <div className="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary group-hover/btn:bg-tertiary group-hover/btn:text-on-tertiary transition-all">
+                            <ScanBarcode className="w-6 h-6" />
+                          </div>
+                          <span className="text-xs font-bold text-on-surface">Scan</span>
+                        </button>
                       </div>
                       <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">or drag and drop image here</p>
                     </>
@@ -444,6 +527,40 @@ export default function AddItem({ onAdd }: AddItemProps) {
                 </select>
                 <ChevronDown className="absolute right-0 bottom-1 text-on-surface-variant pointer-events-none w-4 h-4" />
               </div>
+            </div>
+          </div>
+
+          <div className="bg-surface-container-low p-5 rounded-xl">
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 px-1">Barcode (Optional)</label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  className="w-full bg-transparent border-0 border-b-2 border-outline-variant/30 focus:border-primary focus:ring-0 text-base font-medium p-0 pb-1 pr-8 transition-all"
+                  placeholder="Scan or enter barcode"
+                />
+                {barcode ? (
+                  <button 
+                    type="button"
+                    onClick={() => setBarcode('')}
+                    className="absolute right-6 bottom-1 text-on-surface-variant hover:text-tertiary transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <QrCode className="absolute right-0 bottom-1 text-on-surface-variant pointer-events-none w-5 h-5" />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={startBarcodeScanner}
+                className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all"
+                title="Scan Barcode"
+              >
+                <ScanBarcode className="w-5 h-5" />
+              </button>
             </div>
           </div>
 

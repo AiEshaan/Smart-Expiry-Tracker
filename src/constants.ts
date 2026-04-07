@@ -22,6 +22,7 @@ export const MOCK_PRODUCTS: Product[] = [
     reminderDays: 1,
     status: 'critical',
     imageUrl: 'https://images.unsplash.com/photo-1550583724-125581f77833?auto=format&fit=crop&q=80&w=200&h=200',
+    barcode: '5410000000017',
   },
   {
     id: '2',
@@ -32,6 +33,7 @@ export const MOCK_PRODUCTS: Product[] = [
     reminderDays: 1,
     status: 'critical',
     imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=200&h=200',
+    barcode: '0000000000000',
   },
   {
     id: '3',

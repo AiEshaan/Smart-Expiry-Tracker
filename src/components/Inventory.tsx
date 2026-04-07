@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Search, Calendar, Check, Droplet, Leaf, Fish, Archive, Info, Cookie, Snowflake } from 'lucide-react';
+import { Search, Calendar, Check, Droplet, Leaf, Fish, Archive, Info, Cookie, Snowflake, ScanBarcode } from 'lucide-react';
 import { Product, Category } from '../types';
 import { cn } from '../lib/utils';
 import { format, differenceInDays } from 'date-fns';
@@ -123,6 +123,14 @@ export default function Inventory({ products, onToggleUsed }: InventoryProps) {
                     {format(new Date(product.expiryDate), 'MMM dd, yyyy')}
                   </span>
                 </div>
+                {product.barcode && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <ScanBarcode className="w-3 h-3 text-outline" />
+                    <span className="text-[10px] font-mono text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded">
+                      {product.barcode}
+                    </span>
+                  </div>
+                )}
                 <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
                   <div 
                     className={cn(
