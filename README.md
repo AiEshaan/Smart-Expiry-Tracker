@@ -1,20 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Smart Inventory Tracker
 
-# Run and deploy your AI Studio app
+A modern Android application for tracking product expiration dates, built with Jetpack Compose.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/33d88859-1a7b-4376-bfc1-2dd503d1f8e3
+- **Inventory Management**: Keep track of all your products in one place.
+- **Expiration Tracking**: Automatic calculation of product status (Safe, Warning, Critical) based on expiry date.
+- **Home Dashboard**: Quick view of items expiring today.
+- **Barcode Scanning**: (Experimental) Scan products to quickly add them to your inventory.
+- **Modern UI**: Built using Material Design 3 and Jetpack Compose.
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+- **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- **Navigation**: [Navigation Compose](https://developer.android.com/jetpack/compose/navigation)
+- **Language**: [Kotlin](https://kotlinlang.org/)
+- **Theme**: [Material Design 3](https://m3.material.io/)
+- **Architecture**: MVVM (Planned)
+- **Dependencies**: 
+  - Coil (Image loading)
+  - ML Kit (Barcode scanning)
+  - CameraX (Camera support)
 
+## Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1.  Open the project in **Android Studio Hedgehog** or later.
+2.  Wait for Gradle to sync.
+3.  Connect an Android device or start an emulator.
+4.  Run the `:app` module.
+
+## Project Structure
+
+- `app/src/main/kotlin`: Application source code.
+  - `com.example.smartinventory.data`: Data models and enums.
+  - `com.example.smartinventory.ui`: UI components and navigation.
+  - `com.example.smartinventory.ui.theme`: App theme and styling.
+- `app/src/main/res`: App resources (Strings, Themes).
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
